@@ -1,0 +1,107 @@
+---
+layout: post
+title: Make Org Mode Published HTML Pages Centered on Screens
+categories: computer
+tags: [emacs, org]
+---
+
+<p>
+I compose and publish (to html) my notes using Emacs Org Mode. It worked
+perfectly except one thing: the pages always span the whole screen. Since
+screens today are usally 20+ inches, it seems that restricting pages into a
+smaller width and aligning them vertically centered is much better.
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">A Solution</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+For my simple html pages, this is trivial:
+</p>
+
+<ul class="org-ul">
+<li>First, define a CSS style
+
+<div class="org-src-container">
+
+<pre class="src src-css"><span class="org-css-selector">.container-narrow </span>{
+  <span class="org-css-property">margin</span>: 0 auto;
+  <span class="org-css-property">max-width</span>: 700px;
+}
+</pre>
+</div>
+</li>
+
+<li>Then, wrap everything in the "body" part of my pages with a div of class
+"container-narrow".
+
+<div class="org-src-container">
+
+<pre class="src src-html"><span class="org-nxml-comment-delimiter">&lt;!--</span><span class="org-nxml-comment-content"> ... </span><span class="org-nxml-comment-delimiter">--&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">html</span> <span class="org-nxml-namespace-attribute-xmlns">xmlns</span>=<span class="org-nxml-namespace-attribute-value-delimiter">"</span><span class="org-nxml-namespace-attribute-value">http://www.w3.org/1999/xhtml</span><span class="org-nxml-namespace-attribute-value-delimiter">"</span> <span class="org-nxml-attribute-local-name">lang</span>=<span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-attribute-value">en</span><span class="org-nxml-attribute-value-delimiter">"</span> <span class="org-nxml-attribute-prefix">xml</span><span class="org-nxml-attribute-colon">:</span><span class="org-nxml-attribute-local-name">lang</span>=<span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-attribute-value">en</span><span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">head</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">link</span> <span class="org-nxml-attribute-local-name">rel</span>=<span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-attribute-value">stylesheet</span><span class="org-nxml-attribute-value-delimiter">"</span> <span class="org-nxml-attribute-local-name">type</span>=<span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-attribute-value">text/css</span><span class="org-nxml-attribute-value-delimiter">"</span> <span class="org-nxml-attribute-local-name">href</span>=<span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-attribute-value">../cssjs/lgfang.css</span><span class="org-nxml-attribute-value-delimiter">"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-comment-delimiter">&lt;!--</span><span class="org-nxml-comment-content"> ... </span><span class="org-nxml-comment-delimiter">--&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">head</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">body</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">div</span> <span class="org-nxml-attribute-local-name">class</span>=<span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-attribute-value">container-narrow</span><span class="org-nxml-attribute-value-delimiter">"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-comment-delimiter">&lt;!--</span><span class="org-nxml-comment-content"> ... </span><span class="org-nxml-comment-delimiter">--&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">div</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">body</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">html</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Tweak Org Mode to generate desired HTML code</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Here is my dirty hack:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-diff"><span class="org-diff-header">*** </span><span class="org-diff-header"><span class="org-diff-file-header">ox-html.el.8.2.10   2015-02-27 14:17:53.434294600 +0800</span></span>
+<span class="org-diff-header">--- </span><span class="org-diff-header"><span class="org-diff-file-header">ox-html.el  2015-03-05 13:37:05.648158700 +0800</span></span>
+<span class="org-diff-hunk-header">***************</span>
+<span class="org-diff-hunk-header">*** 1743,1749 ****</span>
+<span class="org-diff-context">     (org-html--build-head info)</span>
+<span class="org-diff-context">     (org-html--build-mathjax-config info)</span>
+<span class="org-diff-context">     "&lt;/head&gt;\n"</span>
+<span class="org-diff-indicator-removed">!</span><span class="org-diff-removed">    "&lt;body&gt;\n"</span>
+<span class="org-diff-context">     (let ((link-up (org-trim (plist-get info :html-link-up)))</span>
+<span class="org-diff-context">     (link-home (org-trim (plist-get info :html-link-home))))</span>
+<span class="org-diff-context">       (unless (and (string= link-up "") (string= link-home ""))</span>
+<span class="org-diff-hunk-header">--- 1743,1749 ----</span>
+<span class="org-diff-context">     (org-html--build-head info)</span>
+<span class="org-diff-context">     (org-html--build-mathjax-config info)</span>
+<span class="org-diff-context">     "&lt;/head&gt;\n"</span>
+<span class="org-diff-indicator-added">!</span><span class="org-diff-added">    "&lt;body&gt;\n&lt;div class=\"container-narrow\"&gt;\n"</span>
+<span class="org-diff-context">     (let ((link-up (org-trim (plist-get info :html-link-up)))</span>
+<span class="org-diff-context">     (link-home (org-trim (plist-get info :html-link-home))))</span>
+<span class="org-diff-context">       (unless (and (string= link-up "") (string= link-home ""))</span>
+<span class="org-diff-hunk-header">***************</span>
+<span class="org-diff-hunk-header">*** 1765,1771 ****</span>
+<span class="org-diff-context">     ;; Postamble.</span>
+<span class="org-diff-context">     (org-html--build-pre/postamble 'postamble info)</span>
+<span class="org-diff-context">     ;; Closing document.</span>
+<span class="org-diff-indicator-removed">!</span><span class="org-diff-removed">    "&lt;/body&gt;\n&lt;/html&gt;"))</span>
+
+<span class="org-diff-context">  (defun org-html--translate (s info)</span>
+<span class="org-diff-context">    "Translate string S according to specified language.</span>
+<span class="org-diff-hunk-header">--- 1765,1771 ----</span>
+<span class="org-diff-context">     ;; Postamble.</span>
+<span class="org-diff-context">     (org-html--build-pre/postamble 'postamble info)</span>
+<span class="org-diff-context">     ;; Closing document.</span>
+<span class="org-diff-indicator-added">!</span><span class="org-diff-added">    "&lt;/div&gt;\n&lt;/body&gt;\n&lt;/html&gt;"))</span>
+</pre>
+</div>
+
+<p>
+I know the code can be polished. But, for me, it is enough.
+</p>
+</div>
+</div>
