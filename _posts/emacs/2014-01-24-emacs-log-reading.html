@@ -1,0 +1,145 @@
+---
+layout: post
+title: Emacs Facilities for Log Analysis
+categories: computer
+tags: [emacs, log]
+---
+
+<p>
+Analyzing log files are far too common to developers and customer supporters.
+However, the log in plain text isn't that friendly to naked eyes.
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">How Plain Text Logs Look Like</h2>
+<div class="outline-text-2" id="text-1">
+
+<div class="figure">
+<p><img src="http://lgfang.github.io/notes/emacs/emacs-screen/highlight-before.png" alt="highlight-before.png" width="600" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">What I What</h2>
+<div class="outline-text-2" id="text-2">
+
+<div class="figure">
+<p><img src="http://lgfang.github.io/notes/emacs/emacs-screen/log-mode.png" alt="log-mode.png" width="600" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Features supported</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>Highlights according to log level
+</li>
+
+<li>One click to jump to corresponding spot
+</li>
+
+<li>Easy "next/previous error"
+</li>
+
+<li>"Smart" scroll while log file is growing
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Creating Your Own Log Mode</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+With the help of the builtin compile.el, it is really simple.
+Basically, you just compose a correct regexp to match your log
+entries.
+</p>
+
+<p>
+Here is an example:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span class="org-keyword">require</span> '<span class="org-constant">compile</span>)
+(define-compilation-mode log-mode <span class="org-string">"log"</span>
+  <span class="org-doc">"This is my log mode, used to highlight and jump. -- lgfang"</span>
+  (<span class="org-keyword">let</span> ((timestamp <span class="org-string">"^[0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+:[0-9]+ "</span>)
+        (level <span class="org-string">"</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">CRITICAL</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">Level [0-9]+</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">WARNING</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">INFO</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">DEBUG</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">? *"</span>)
+        (location <span class="org-string">"</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">[</span><span class="org-string"><span class="org-negation-char">^</span></span><span class="org-string"> :]+</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string"> *:</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">[0-9]+</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">?"</span>))
+    (set (make-local-variable 'compilation-error-regexp-alist)
+         (list (list (concat timestamp level location) 4 5
+                     nil (cons 2 3) )))))
+
+(add-to-list 'auto-mode-alist '(<span class="org-string">"\\.log\\'"</span> . log-mode))
+</pre>
+</div>
+
+<p>
+Refer to description of variable compilation-error-regexp-alist for
+details.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">Highlighting Keywords (Optional)</h2>
+<div class="outline-text-2" id="text-5">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(font-lock-add-keywords
+ 'log-mode '((<span class="org-string">"CRITICAL"</span> . (0 compilation-error-face t))
+             (<span class="org-string">"WARNING"</span> . (0 compilation-warning-face t))
+             (<span class="org-string">"</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">INFO</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">DEBUG</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">"</span> . (0 compilation-info-face t))))
+</pre>
+</div>
+
+<p>
+Add as many as you like.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">Universal Ad-Hoc Keywords Highlighting</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+There is also a way to highlight keywords or regular expressions whatever
+mode/buffer you are in. But, IMHO, maybe it is most useful when reading logs.
+</p>
+
+
+<div class="figure">
+<p><img src="http://lgfang.github.io/notes/emacs/emacs-screen/highlight-after.png" alt="highlight-after.png" width="600" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7">Adjust Path</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Uh &#x2026;, one more thing, if the file paths in log file are under another
+"root", press "r" to "relocate".
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span class="org-keyword">defun</span> <span class="org-function-name">set-default-directory</span> ()
+  <span class="org-doc">"Seach files listed in log relative to the path set."</span>
+  (interactive)
+  (<span class="org-keyword">let*</span> ((path
+          (read-from-minibuffer <span class="org-string">"default directory: "</span>
+                                nil nil nil nil)))
+    (setq default-directory path)))
+
+(define-key log-mode-map (kbd <span class="org-string">"r"</span>) 'set-default-directory)
+</pre>
+</div>
+</div>
+</div>
