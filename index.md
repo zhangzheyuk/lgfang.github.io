@@ -10,17 +10,12 @@ Please be noted that, in addition to blogs underneath, you also have access to
 
 <br/>
 
-<ul class="posts">
+{% for post in site.posts limit: 5 %}
 
-    {% for post in site.posts limit: 5 %}
+<a style="color:#4A4A4A;font-size:160%" href="{{ post.url }}"> {{ post.title }}</a>
 
-    <li>
-        <a href="{{ post.url }}">{{ post.title }}</a>
-        <p/>
-        {{ post.excerpt }}
-    </li>
-    <br/>
+{{ post.excerpt }}
 
-    {% endfor %}
+<br/>
 
-</ul>
+{% endfor %}
